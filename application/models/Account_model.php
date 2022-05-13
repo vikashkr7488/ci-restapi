@@ -20,12 +20,17 @@ class Account_model extends CI_Model {
 		return $this->db->insert($this->table, $data);
 	}
 
-	public function checkDuplicate($data)
+	public function update(array $data)
 	{
 		$this->db->where($data);
-		$query = $this->db->get($this->table);
-		
-		if ($query->num_rows() > 0) {
+		return $this->db->update($this->table, $data);
+	}
+
+	public function checkDuplicate($data)
+	{
+		$query = $this->db->get_where($this->table, $data)->row();
+
+		if ($query) {
 			return false;
 		} else {
 			return true;
