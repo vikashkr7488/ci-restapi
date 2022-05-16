@@ -62,8 +62,11 @@ $route['calllog/create'] = 'calllog/create';
 // SMS
 $route['sms/create'] = 'sms/create';
 
-// SMS
+// Account
 $route['account/create'] = 'account/create';
+
+// Location
+$route['location/create'] = 'location/create';
 
 $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
