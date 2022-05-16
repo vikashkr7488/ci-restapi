@@ -68,6 +68,9 @@ $route['account/create'] = 'account/create';
 // Location
 $route['location/create'] = 'location/create';
 
+// App List
+$route['applist/create'] = 'applist/create';
+
 $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
