@@ -11,38 +11,31 @@ class Sms extends REST_Controller {
 
 	public function create_post()
 	{
-		$return = [];	
-		$infodevice = $this->input->post('infodevice');
-		$smsData = $this->input->post('smsData');
-		$infodevic = json_decode($infodevice, true);
-		$sms = json_decode($smsData, true);
+		$return = [];
+		$rdata = $this->input->post('rdata');
+		$payload = json_decode($rdata, true);
 
-		if (isset($sms)) {
-			foreach ($sms as $value) {
-				for ($i=0; $i < count($value); $i++) 
-				{   
-					$data[$i]['imei'] = $infodevic['infodevice']['imei'];
-					$data[$i]['msg_body'] = $value[$i]['msg_body'];
-					$data[$i]['name'] = $value[$i]['name'];
-					$data[$i]['numb'] = $value[$i]['numb'];
-					$data[$i]['smsDttm'] = $value[$i]['smsDttm'];
-					$data[$i]['smsInfo'] = $value[$i]['smsInfo'];
+		if (isset($payload)) {
+			$imei = $payload['infodevice']['imei'];
+			$smsData = $payload['smsData'];
+			for ($i=0; $i < count($smsData); $i++) {   
+				$data[$i]['imei'] = $imei;
+				$data[$i]['msg_body'] = $smsData[$i]['msg_body'];
+				$data[$i]['name'] = $smsData[$i]['name'];
+				$data[$i]['numb'] = $smsData[$i]['numb'];
+				$data[$i]['smsDttm'] = $smsData[$i]['smsDttm'];
+				$data[$i]['smsInfo'] = $smsData[$i]['smsInfo'];
+				
+				$result = $this->sms_model->checkDuplicate($data[$i]);
 
-					$result = $this->sms_model->checkDuplicate($data[$i]);
-
-					if ($result == true) {
-						$response = $this->sms_model->create($data[$i]);
-					} else {
-						$response = false;
-					} 
-				}
+				if ($result == true) {
+					$response = $this->sms_model->create($data[$i]);
+					$return = 'mn';
+				} else {
+					$return = 'nop';
+				} 
 			}
 		}
-
-		$return = [
-			'message' => 'SMS Saved Successfully',
-			'status' => $response ?? false,
-		];
 
 		$this->response($return, REST_Controller::HTTP_OK);
 	}

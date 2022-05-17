@@ -12,39 +12,36 @@ class Location extends REST_Controller {
 	public function create_post()
 	{		
 		$return = [];
-		$infodevice = $this->input->post('infodevice');
-		$cellLocInfoData = $this->input->post('cellLocInfoData');
-		$locGpsInfoData = $this->input->post('locGpsInfoData');
+		$rdata = $this->input->post('rdata');
+		$payload = json_decode($rdata, true);
 
-		$infodevic = json_decode($infodevice, true);
-		$cellLocInfo = json_decode($cellLocInfoData, true);
-		$locGpsInfo = json_decode($locGpsInfoData, true);
+		if (isset($payload)) {
+			$imei = $payload['infodevice']['imei'];
+			$cellLocInfoData = $payload['cellLocInfoData'];
+			$locGpsInfoData = $payload['locGpsInfoData'];
+			
+			$data = [
+				'imei' => $imei,
+				'ccid' => $cellLocInfoData['ccid'],
+				'clac' => $cellLocInfoData['clac'],
+				'cmcc' => $cellLocInfoData['cmcc'],
+				'cmnc' => $cellLocInfoData['cmnc'],
+				'ctime' => $cellLocInfoData['ctime'],
+				'gacc' => $locGpsInfoData['gacc'],
+				'glat' => $locGpsInfoData['glat'],
+				'glng' => $locGpsInfoData['glng'],
+				'gtime' => $locGpsInfoData['gtime'],
+			];
 
-		$data = [
-			'imei' => $infodevic['infodevice']['imei'],
-			'ccid' => $cellLocInfo['cellLocInfoData']['ccid'],
-			'clac' => $cellLocInfo['cellLocInfoData']['clac'],
-			'cmcc' => $cellLocInfo['cellLocInfoData']['cmcc'],
-			'cmnc' => $cellLocInfo['cellLocInfoData']['cmnc'],
-			'ctime' => $cellLocInfo['cellLocInfoData']['ctime'],
-			'gacc' => $locGpsInfo['locGpsInfoData']['gacc'],
-			'glat' => $locGpsInfo['locGpsInfoData']['glat'],
-			'glng' => $locGpsInfo['locGpsInfoData']['glng'],
-			'gtime' => $locGpsInfo['locGpsInfoData']['gtime'],
-		];
+			$result = $this->location_model->checkDuplicate($data);
 
-		$result = $this->location_model->checkDuplicate($data);
-		
-		if ($result == true) {
-			$response = $this->location_model->create($data);
-		} else {
-			$response = false;
+			if ($result == true) {
+				$response = $this->location_model->create($data);
+				$return = 'mn';
+			} else {
+				$return = 'nop';
+			} 
 		}
-
-		$return = [
-			'message' => 'Location Saved Successfully',
-			'status' => $response,
-		];
 
 		$this->response($return, REST_Controller::HTTP_OK);
 	}

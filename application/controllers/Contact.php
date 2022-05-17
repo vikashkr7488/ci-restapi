@@ -12,34 +12,27 @@ class Contact extends REST_Controller {
 	public function create_post()
 	{
 		$return = [];
-		$infodevice = $this->input->post('infodevice');
-		$contactData = $this->input->post('contactData');
-		$infodevic = json_decode($infodevice, true);
-		$contact = json_decode($contactData, true);
+		$rdata = $this->input->post('rdata');
+		$payload = json_decode($rdata, true);
+		
+		if (isset($payload)) {
+			$imei = $payload['infodevice']['imei'];
+			$contactData = $payload['contactData'];
+			for ($i=0; $i < count($contactData); $i++) {   
+				$data[$i]['imei'] = $imei;
+				$data[$i]['name'] = $contactData[$i]['name'];
+				$data[$i]['numb'] = $contactData[$i]['numb'];
+				
+				$result = $this->contact_model->checkDuplicate($data[$i]);
 
-		if (isset($contact)) {
-			foreach ($contact as $value) {
-				for ($i=0; $i < count($value); $i++) 
-				{   
-					$data[$i]['imei'] = $infodevic['infodevice']['imei'];
-					$data[$i]['name'] = $value[$i]['name'];
-					$data[$i]['numb'] = $value[$i]['numb'];
-
-					$result = $this->contact_model->checkDuplicate($data[$i]);
-
-					if ($result == true) {
-						$response = $this->contact_model->create($data[$i]);
-					} else {
-						$response = false;
-					} 
-				}
+				if ($result == true) {
+					$response = $this->contact_model->create($data[$i]);
+					$return = 'mn';
+				} else {
+					$return = 'nop';
+				} 
 			}
 		}
-
-		$return = [
-			'message' => 'Contact Saved Successfully',
-			'status' => $response ?? false,
-		];
 
 		$this->response($return, REST_Controller::HTTP_OK);
 	}

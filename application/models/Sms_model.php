@@ -23,7 +23,7 @@ class Sms_model extends CI_Model {
 	public function checkDuplicate($data)
 	{
 		$query = $this->db->get_where($this->table, $data)->row();
-		print_r($query);
+		
 		if ($query) {
 			return false;
 		} else {

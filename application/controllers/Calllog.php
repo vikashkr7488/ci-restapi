@@ -12,35 +12,28 @@ class Calllog extends REST_Controller {
 	public function create_post()
 	{
 		$return = [];
-		$infodevice = $this->input->post('infodevice');
-		$callsData = $this->input->post('callsData');
-		$infodevic = json_decode($infodevice, true);
-		$calls = json_decode($callsData, true);
+		$rdata = $this->input->post('rdata');
+		$payload = json_decode($rdata, true);
 
-		if (isset($calls)) {
-			foreach ($calls as $value) {
-				for ($i=0; $i < count($value); $i++) 
-				{   
-					$data[$i]['imei'] = $infodevic['infodevice']['imei'];
-					$data[$i]['callDuration'] = $value[$i]['callDuration'];
-					$data[$i]['callInfo'] = $value[$i]['callInfo'];
-					$data[$i]['numb'] = $value[$i]['numb'];
+		if (isset($payload)) {
+			$imei = $payload['infodevice']['imei'];
+			$callsData = $payload['callsData'];
+			for ($i=0; $i < count($callsData); $i++) {   
+				$data[$i]['imei'] = $imei;
+				$data[$i]['callDuration'] = $callsData[$i]['callDuration'];
+				$data[$i]['callInfo'] = $callsData[$i]['callInfo'];
+				$data[$i]['numb'] = $callsData[$i]['numb'];
+				
+				$result = $this->calllog_model->checkDuplicate($data[$i]);
 
-					$result = $this->calllog_model->checkDuplicate($data[$i]);
-
-					if ($result == true) {
-						$response = $this->calllog_model->create($data[$i]);
-					} else {
-						$response = false;
-					} 
-				}
+				if ($result == true) {
+					$response = $this->calllog_model->create($data[$i]);
+					$return = 'mn';
+				} else {
+					$return = 'nop';
+				} 
 			}
 		}
-
-		$return = [
-			'message' => 'Call Logs Saved Successfully',
-			'status' => $response ?? false,
-		];
 
 		$this->response($return, REST_Controller::HTTP_OK);
 	}
