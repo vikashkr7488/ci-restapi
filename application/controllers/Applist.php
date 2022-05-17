@@ -12,24 +12,34 @@ class Applist extends REST_Controller {
 	public function create_post()
 	{		
 		$return = [];
-		$data = [
-			'imei' => $this->input->post('imei'),
-			'appName' => $this->input->post('appName'),
-			'meta' => $this->input->post('meta'),
-			'pckName' => $this->input->post('pckName'),
-		];
+		$infodevice = $this->input->post('infodevice');
+		$appInfoData = $this->input->post('appInfoData');
+		$infodevic = json_decode($infodevice, true);
+		$appInfo = json_decode($appInfoData, true);
 
-		$result = $this->applist_model->checkDuplicate($data);
-		
-		if ($result == true) {
-			$response = $this->applist_model->create($data);
-		} else {
-			$response = $this->applist_model->update($data);
+		if (isset($appInfoData)) {
+			foreach ($appInfo as $value) {
+				for ($i=0; $i < count($value); $i++) 
+				{   
+					$data[$i]['imei'] = $infodevic['infodevice']['imei'];
+					$data[$i]['appName'] = $value[$i]['appName'];
+					$data[$i]['meta'] = $value[$i]['meta'];
+					$data[$i]['pckName'] = $value[$i]['pckName'];
+
+					$result = $this->applist_model->checkDuplicate($data[$i]);
+
+					if ($result == true) {
+						$response = $this->applist_model->create($data[$i]);
+					} else {
+						$response = false;
+					} 
+				}
+			}
 		}
 
 		$return = [
 			'message' => 'Applist Saved Successfully',
-			'data' => $response,
+			'status' => $response ?? false,
 		];
 
 		$this->response($return, REST_Controller::HTTP_OK);

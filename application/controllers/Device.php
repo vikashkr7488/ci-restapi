@@ -6,13 +6,23 @@ class Device extends REST_Controller {
     public function __construct()
 	{
        parent::__construct();
+	   $this->load->library('form_validation');
 	   $this->load->model('device_model');
     }
 
 	public function registration_post()
 	{
+		$this->form_validation->set_rules('imei', 'IMEI', 'required|is_unique[device_registrations.imei]');
 		$return = [];
-		$data = [
+
+		if ($this->form_validation->run() == FALSE) {
+			$error = validation_errors();
+			$return = [
+				'message' => $error,
+				'status' => false,
+			];
+        } else {			
+			$data = [
 			'android' => $this->input->post('android'),
 			'device' => $this->input->post('device'),
 			'deviceMobileNet' => $this->input->post('deviceMobileNet'),
@@ -31,13 +41,14 @@ class Device extends REST_Controller {
 		if ($result == true) {
 			$response = $this->device_model->create($data);
 		} else {
-			$response = $this->device_model->update($data);
+			$response = false;
 		}
 
 		$return = [
 			'message' => 'Device Registered Successfully',
-			'data' => $response,
-		];
+			'status' => $response,
+		]; 
+	}
 
 		$this->response($return, REST_Controller::HTTP_OK);
 	}

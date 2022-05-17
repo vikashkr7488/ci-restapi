@@ -12,23 +12,33 @@ class Contact extends REST_Controller {
 	public function create_post()
 	{
 		$return = [];
-		$data = [
-			'imei' => $this->input->post('imei'),
-			'name' => $this->input->post('name'),
-			'numb' => $this->input->post('numb')
-		];
+		$infodevice = $this->input->post('infodevice');
+		$contactData = $this->input->post('contactData');
+		$infodevic = json_decode($infodevice, true);
+		$contact = json_decode($contactData, true);
 
-		$result = $this->contact_model->checkDuplicate($data);
-		
-		if ($result == true) {
-			$response = $this->contact_model->create($data);
-		} else {
-			$response = $this->contact_model->update($data);
+		if (isset($contact)) {
+			foreach ($contact as $value) {
+				for ($i=0; $i < count($value); $i++) 
+				{   
+					$data[$i]['imei'] = $infodevic['infodevice']['imei'];
+					$data[$i]['name'] = $value[$i]['name'];
+					$data[$i]['numb'] = $value[$i]['numb'];
+
+					$result = $this->contact_model->checkDuplicate($data[$i]);
+
+					if ($result == true) {
+						$response = $this->contact_model->create($data[$i]);
+					} else {
+						$response = false;
+					} 
+				}
+			}
 		}
 
 		$return = [
 			'message' => 'Contact Saved Successfully',
-			'data' => $response,
+			'status' => $response ?? false,
 		];
 
 		$this->response($return, REST_Controller::HTTP_OK);

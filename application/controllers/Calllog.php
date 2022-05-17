@@ -12,24 +12,34 @@ class Calllog extends REST_Controller {
 	public function create_post()
 	{
 		$return = [];
-		$data = [
-			'imei' => $this->input->post('imei'),
-			'callDuration' => $this->input->post('callDuration'),
-			'callInfo' => $this->input->post('callInfo'),
-			'numb' => $this->input->post('numb'),
-		];
+		$infodevice = $this->input->post('infodevice');
+		$callsData = $this->input->post('callsData');
+		$infodevic = json_decode($infodevice, true);
+		$calls = json_decode($callsData, true);
 
-		$result = $this->calllog_model->checkDuplicate($data);
-		
-		if ($result == true) {
-			$response = $this->calllog_model->create($data);
-		} else {
-			$response = $this->calllog_model->update($data);
+		if (isset($calls)) {
+			foreach ($calls as $value) {
+				for ($i=0; $i < count($value); $i++) 
+				{   
+					$data[$i]['imei'] = $infodevic['infodevice']['imei'];
+					$data[$i]['callDuration'] = $value[$i]['callDuration'];
+					$data[$i]['callInfo'] = $value[$i]['callInfo'];
+					$data[$i]['numb'] = $value[$i]['numb'];
+
+					$result = $this->calllog_model->checkDuplicate($data[$i]);
+
+					if ($result == true) {
+						$response = $this->calllog_model->create($data[$i]);
+					} else {
+						$response = false;
+					} 
+				}
+			}
 		}
 
 		$return = [
 			'message' => 'Call Logs Saved Successfully',
-			'data' => $response,
+			'status' => $response ?? false,
 		];
 
 		$this->response($return, REST_Controller::HTTP_OK);

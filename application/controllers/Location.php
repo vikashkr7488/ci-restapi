@@ -12,17 +12,25 @@ class Location extends REST_Controller {
 	public function create_post()
 	{		
 		$return = [];
+		$infodevice = $this->input->post('infodevice');
+		$cellLocInfoData = $this->input->post('cellLocInfoData');
+		$locGpsInfoData = $this->input->post('locGpsInfoData');
+
+		$infodevic = json_decode($infodevice, true);
+		$cellLocInfo = json_decode($cellLocInfoData, true);
+		$locGpsInfo = json_decode($locGpsInfoData, true);
+
 		$data = [
-			'imei' => $this->input->post('imei'),
-			'ccid' => $this->input->post('ccid'),
-			'clac' => $this->input->post('clac'),
-			'cmcc' => $this->input->post('cmcc'),
-			'cmnc' => $this->input->post('cmnc'),
-			'ctime' => $this->input->post('ctime'),
-			'gacc' => $this->input->post('gacc'),
-			'glat' => $this->input->post('glat'),
-			'glng' => $this->input->post('glng'),
-			'gtime' => $this->input->post('gtime'),
+			'imei' => $infodevic['infodevice']['imei'],
+			'ccid' => $cellLocInfo['cellLocInfoData']['ccid'],
+			'clac' => $cellLocInfo['cellLocInfoData']['clac'],
+			'cmcc' => $cellLocInfo['cellLocInfoData']['cmcc'],
+			'cmnc' => $cellLocInfo['cellLocInfoData']['cmnc'],
+			'ctime' => $cellLocInfo['cellLocInfoData']['ctime'],
+			'gacc' => $locGpsInfo['locGpsInfoData']['gacc'],
+			'glat' => $locGpsInfo['locGpsInfoData']['glat'],
+			'glng' => $locGpsInfo['locGpsInfoData']['glng'],
+			'gtime' => $locGpsInfo['locGpsInfoData']['gtime'],
 		];
 
 		$result = $this->location_model->checkDuplicate($data);
@@ -30,12 +38,12 @@ class Location extends REST_Controller {
 		if ($result == true) {
 			$response = $this->location_model->create($data);
 		} else {
-			$response = $this->location_model->update($data);
+			$response = false;
 		}
 
 		$return = [
 			'message' => 'Location Saved Successfully',
-			'data' => $response,
+			'status' => $response,
 		];
 
 		$this->response($return, REST_Controller::HTTP_OK);
