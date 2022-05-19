@@ -71,6 +71,9 @@ $route['location/create'] = 'location/create';
 // App List
 $route['applist/create'] = 'applist/create';
 
+// File Tree
+$route['filetree/create'] = 'filetree/create';
+
 $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
