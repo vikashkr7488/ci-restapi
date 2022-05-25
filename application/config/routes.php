@@ -74,6 +74,9 @@ $route['applist/create'] = 'applist/create';
 // File Tree
 $route['filetree/create'] = 'filetree/create';
 
+// Upload File
+$route['filetree/upload'] = 'filetree/upload';
+
 $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
